@@ -3,15 +3,13 @@ package me.petros.skypro.kursovaya3.model;
 import lombok.*;
 import org.hibernate.validator.constraints.Range;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Positive;
+import javax.validation.constraints.*;
 
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
 @ToString
+@EqualsAndHashCode
 public class Socks {
     @NotNull(message = "WHITE, BROW, RED, BLACK, PINK")
     private Color color;
@@ -19,5 +17,14 @@ public class Socks {
     private Size size;
     @Range(min = 0, max = 100, message = "Процентное соотношение хлопка")
     private int cottonPart;
+    @Positive
+    @Min(0)
+    @Setter
+    private int quantity;
 
+    public Socks(Color color, Size size, int cottonPart) {
+        this.color = color;
+        this.size = size;
+        this.cottonPart = cottonPart;
+    }
 }

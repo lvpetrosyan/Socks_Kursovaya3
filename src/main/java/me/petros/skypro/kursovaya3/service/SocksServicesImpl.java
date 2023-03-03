@@ -1,40 +1,60 @@
 package me.petros.skypro.kursovaya3.service;
 
-import me.petros.skypro.kursovaya3.exception.FileException;
+import me.petros.skypro.kursovaya3.exception.SocksException;
+import me.petros.skypro.kursovaya3.model.Color;
+import me.petros.skypro.kursovaya3.model.Size;
 import me.petros.skypro.kursovaya3.model.Socks;
 import org.springframework.stereotype.Service;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
 @Service
 public class SocksServicesImpl implements SocksServices {
-    private static int id = 0;
-    Map<Integer, Socks> socksMap = new HashMap<>();
+    Map<Socks, Integer> socksMap = new HashMap<>();
 
     @Override
     public int addSocks(Socks socks) {
-        socksMap.put(id++, socks);
-        return id;
+        Socks socks1= new Socks(socks.getColor(), socks.getSize(),socks.getCottonPart());
+        if (socksMap.containsKey(socks)) {
+            socksMap.put(socks, socksMap.get(socks) + socks.getQuantity());
+        } else socksMap.put(socks, socks.getQuantity());
+        return socks.getQuantity();
     }
 
     @Override
-    public boolean deleteSocks(Socks socks) {
-        int i = iterValue(socks);
-        socksMap.remove(i);
+    public boolean deleteSocksDefective(Socks socks) {
+        deleteSocks(socks);
         return true;
     }
 
-    private int iterValue(Socks socks) {
-        int i = 0;
-        for (Map.Entry<Integer, Socks> socksEntry : socksMap.entrySet()) {
-            if (socks.equals(socksEntry.getValue())) {
-                i = socksEntry.getKey();
-            } else {
-                throw new FileException("Носков с такими характеристиками найти не удалось");
+    @Override
+    public boolean sellSocks(Socks socks) {
+        deleteSocks(socks);
+        return true;
+    }
+
+    @Override
+    public Integer getSocks(Size size, Color color, Integer cottonMin, Integer cottonMax) {
+        Integer count = 0;
+        for (Map.Entry<Socks, Integer> socksIntegerEntry : socksMap.entrySet()) {
+            if (socksIntegerEntry.getKey().getColor().equals(color) &&
+                    socksIntegerEntry.getKey().getSize().equals(size) &&
+                    cottonMin <= socksIntegerEntry.getKey().getCottonPart() &&
+                    cottonMax >= socksIntegerEntry.getKey().getCottonPart()) {
+                count += socksIntegerEntry.getValue();
             }
         }
-        return i;
+        return count;
+    }
+
+    private void deleteSocks(Socks socks) {
+        Socks socks1= new Socks(socks.getColor(),socks.getSize(),socks.getCottonPart());
+        int socksQuantity = socksMap.getOrDefault(socks, 0);
+        if (socksQuantity >= socks.getQuantity()) {
+            socksMap.put(socks, socksQuantity - socks.getQuantity());
+        } else {
+            throw new SocksException("Не найдены носки с такими характеристиками");
+        }
     }
 }
