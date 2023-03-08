@@ -20,6 +20,7 @@ public class Socks {
     @Positive
     @Min(0)
     @Setter
+    @EqualsAndHashCode.Exclude
     private int quantity;
 
     public Socks(Color color, Size size, int cottonPart) {
