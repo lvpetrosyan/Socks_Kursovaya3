@@ -27,6 +27,11 @@ public class SocksController {
     public SocksController(SocksServices socksServices) {
         this.socksServices = socksServices;
     }
+  /**
+ Метод для добавления товара - регистрации прихода носков на склад со всеми характеристиками.
+ @param socks - объект носков с указанием цвета, размера, процента хлопка и количества
+ @return ResponseEntity<Integer> - ответ в виде ID добавленных носков
+ */
     @PostMapping
     @Operation(summary = "Добавление товара",
                description = "Регистрирует приход носков на склад со всеми характеристиками")
@@ -50,6 +55,11 @@ public class SocksController {
        int id= socksServices.addSocks(socks);
         return ResponseEntity.ok().body(id);
     }
+  /**
+ Метод для ликвидации бракованного товара - списание испорченных (бракованных) носков.
+ @param socks - объект носков с указанием цвета, размера, процента хлопка и количества
+ @return ResponseEntity<String> - ответ о выполнении запроса и списанном товаре
+ */
     @DeleteMapping("/delete")
     @Operation(summary = "Ликвидация бракованного товара",
                description = "Регистрирует списание испорченных (бракованных) носков")
@@ -75,6 +85,9 @@ public class SocksController {
         }
         return ResponseEntity.notFound().build();
     }
+   /**
+ Метод для списания проданных товаров.
+ */
     @PutMapping("/sell")
     @Operation(summary = "Отгрузка проданных товаров")
     @Parameters(value = {@Parameter(name = "color", example = "WHITE"),
@@ -94,11 +107,13 @@ public class SocksController {
     }
     )
     public ResponseEntity<Void> sellSocks(@Valid@RequestBody Socks socks){
+      // Списание носков со склада после продажи
         if (socksServices.deleteSocksDefective(socks)){
             return ResponseEntity.ok().build();
         }
         return ResponseEntity.notFound().build();
     }
+  //Метод для поиска носков по параметрам: цвет, размер и материал. 
     @GetMapping("/info")
     @Operation(summary = "Поиск товаров",
                description = "Возвращает общее количество носков на складе, соответствующих переданным в параметрах критериям запроса")
@@ -116,6 +131,7 @@ public class SocksController {
             )
     }
     )
+  //Метод возвращает ID товара, если он есть на складе с заданными параметрами 
     public Integer getSocksByParameter(@RequestParam(required = false, name = "size") Size size,
                                        @RequestParam(required = false, name = "color") Color color,
                                        @RequestParam(required = false, name = "cottonMin")Integer cottonMin,
